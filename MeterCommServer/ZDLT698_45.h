@@ -1,0 +1,125 @@
+#pragma once
+#include "ZProtocol.h"
+#include "MyFuncLib.h"
+#include "Markup.h"
+#include "ZFileSocket.h"
+
+class ZDLT698_45:public ZProtocol
+{
+private:
+	CString m_strLength;
+	CString m_strCtrlArea;
+	CString m_strAddrFlag;
+	CString m_strServerAddr;
+	CString m_strClientAddr;
+	CString m_strHeadCS;
+	CString m_strSplitFlag;
+	CString m_strReqResCode;
+	CString m_strReqResChoice;
+	unsigned int m_nPIID;
+	CString m_strPIID;
+	CString m_strObjNum;
+	CString m_strObject;
+	CString m_strTgtData;
+	std::vector<CString> m_vec_strObject;
+	std::vector<CString> m_vec_strTgtData;
+	CString m_strTimeTag;
+	CString m_strFrameCS;
+	CString m_strGrade;
+	CString m_strPsWd;
+	CString m_strOperaCode;
+	int m_nKeyState;
+	CString m_strDiv;
+	CString m_strMeterNo;
+	CString m_strESAMNO;
+	CString m_strASCTR;
+	CString m_strFLG;
+	CString m_strRand1;
+	CString m_strSessionData1;
+	CString m_strSign1;
+	CString m_strSessionData2;
+	CString m_strSign2;
+	CString m_strSessionKey;
+	int m_nOperateMode;
+	CString m_strSID;
+	CString m_strAttachData;
+	CString m_strMAC;
+	int m_nDllType;
+	BOOL m_nIsRemote;
+	CString m_strServerIP;
+	CString m_strServerPort;
+	CString m_strServerTimeOut;
+	CString m_strNetCptIP;
+	CString m_strNetCptPort;
+	CString m_strNetCptTimeOut;
+	bool m_bIsSplitSend;
+	bool m_bIsSplitRecv;
+	CString m_strSplitAPDU;
+	static HMODULE m_hDll17SGCC;
+public:
+	ZDLT698_45(void);
+	virtual ~ZDLT698_45(void);
+	virtual int DataEncode(CString & strData,CString & strError);
+	virtual bool DataDecode(CString strData,CString & strValue);
+	virtual CString GetLength(void);
+	static int CallExDll(void);
+	static void UncallExDll(void);
+	static bool Check698_45(CString str);
+	bool Set16Param(const CString & strParam);
+	CString ReverseCStringBy2(CString str);
+	static CString GetPPPFCS16(const CString & str);
+	static UINT16 GetPPPFCS16(BYTE * p_c,int nLen);
+	static bool CStringToBYTEArrBy2(const CString & in_str,BYTE *out_pArray,const int & in_nMaxArrayLen);
+	void ExecGetResultNormal(CString & strScr, CString & strValue);
+	void ExecData(CString & strScr, CString & strValue);
+	void ExecSetResultNormal(CString & strScr, CString & strValue);
+	void ExecActionResultNormal(CString & strScr, CString & strValue);
+	CString HexStringToAsciiString(const CString & strHex);
+	CString HexStringToUTF8String(const CString & strHex);
+	float HexString2Float(const CString & strSrc);
+	double HexString2Double(const CString & strSrc);
+	CString HexStringToDateString(CString strHex);
+	CString HexStringToTimeString(CString strHex);
+	CString GetDAR(unsigned int nResult);
+	CString ErrorInfo17SGCC(const int & nError);
+	int ConnectDevice17SGCC(void);
+	int Set_MeterType17SGCC(int nMeterType);
+	int Obj_Meter_Formal_InitSession17SGCC(void);
+	int Obj_Meter_Formal_VerifySession17SGCC(void);
+	int Obj_Meter_Formal_GetSessionData17SGCC(CString & strData,int nTaskType);
+	int Obj_Meter_Formal_GetMeterSetData17SGCC(CString & strData);
+	int Obj_Meter_Formal_VerifyMeterData17SGCC(CString & strData);
+	int Obj_Meter_Formal_SetESAMData17SGCC(CString & strData);
+	int Obj_Meter_Formal_GetTrmKeyData17SGCC(CString & strData);
+	void GetXmlObjValue(const CString & strXml, std::vector<CString> & vec_strObj, std::vector<CString> & vec_strTValue, std::vector<CString> & vec_strDValue, std::vector<int> & vec_nType);
+	void GetXmlObjValue(CMarkup & xml, std::vector<CString> & vec_strObj, std::vector<CString> & vec_strTValue, std::vector<CString> & vec_strDValue, std::vector<int> & vec_nType);
+	void GetXmlValue(CMarkup & xml, CString & strTValue, CString & strDValue, int & nType);
+	void GetXmlValue(const CString & strXml, CString & strTValue, CString & strDValue, int & nType);
+	void UpdateVariables85H(const CString & strValue);
+	void UpdateVariables86H(const CString & strValue);
+	void UpdateVariables87H(const CString & strValue);
+	CString GetServerAddr(void);
+	CString GetConnectResult(unsigned int nResult);
+	int ExecESAMData(const CString & strFObject, CString & strFTargetData,CString & strError);
+	CString GetTheObject(void);
+	int GetEncodeRemoteData(CString & strData, CString & strError);
+	bool GetDecodeRemoteData(const CString  & strData, CString & strValue);
+	bool SocketCommunication(const CString & strDataIn, CString & strDataOut);
+	CString GetParamByCstring(void);
+	bool SetParamByCstring(const CString & strParam);
+	void ChooseDll(const int & nDllType);
+	int GetDllChoose(void);
+	void ChooseMode(const BOOL & nIsRemote);
+	BOOL GetModeChoose(void);
+	void SetServerInfo(const CString & strIP, const CString & strPort, const CString & strTimeOut);
+	void GetServerInfo(CString & strIP, CString & strPort, CString & strTimeOut);
+	void SetNetCptInfo(const CString & strIP, const CString & strPort, const CString & strTimeOut);
+	void GetNetCptInfo(CString & strIP, CString & strPort, CString & strTimeOut);
+	CString GetReqResCode(void);
+	void SetReqResCode(const CString & strReqResCode);
+	CString ExecLength(const int & nLength);
+	int ReverseExecLength(CString & strData);
+	bool IsSplitSend(void);
+	bool IsSplitRecv(void);
+};
+

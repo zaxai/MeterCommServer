@@ -9,8 +9,7 @@
 #endif
 
 #include "resource.h"		// 主符号
-#include "MyFuncLib.h"
-#include "MyClassLib.h"
+#include "ZClassLib.h"
 
 // CMeterCommServerApp:
 // 有关此类的实现，请参阅 MeterCommServer.cpp

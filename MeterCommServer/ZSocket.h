@@ -1,5 +1,5 @@
 #pragma once
-#include "MyFuncLib.h"
+#include "ZUtil.h"
 #include <ws2tcpip.h>
 class ZSocket
 {

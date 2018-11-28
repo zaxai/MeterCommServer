@@ -137,7 +137,7 @@ int ZSocket::Connect(const CString & in_strServerIp,const CString & in_strServer
 	CString strServerIp;
 	strServerIp=DomainNameToIp(in_strServerIp);
 	char sz_cServerIp[20]={0};
-	BOOL nRtn=TtoA_Z(strServerIp,sz_cServerIp,sizeof(sz_cServerIp));
+	BOOL nRtn=ZUtil::WtoA(strServerIp,sz_cServerIp,sizeof(sz_cServerIp));
 	if(!nRtn)
 		return ERROR_OTHER;
 	unsigned short nServerPort=_ttoi(in_strServerPort);
@@ -168,7 +168,7 @@ int ZSocket::Bind(const CString & in_strLocalIp,const CString & in_strLocalPort)
 	char sz_cLocalIp[20]={0};
 	if(strLocalIp==_T("INADDR_ANY"))
 		strLocalIp=_T("0.0.0.0");
-	if(!TtoA_Z(strLocalIp, sz_cLocalIp, sizeof(sz_cLocalIp)))
+	if(!ZUtil::WtoA(strLocalIp, sz_cLocalIp, sizeof(sz_cLocalIp)))
 		return ERROR_OTHER;
 	unsigned short nLocalPort=_ttoi(in_strLocalPort);
 	return Bind(sz_cLocalIp,nLocalPort);
@@ -320,7 +320,7 @@ int ZSocket::Send(const CString & in_strData)
 	char *p_cData=new char[nMaxLen];
 	if(p_cData==NULL)
 		return ERROR_OTHER;
-	BOOL nRtnChange=TtoA_Z(in_strData,p_cData,nMaxLen);
+	BOOL nRtnChange=ZUtil::WtoA(in_strData,p_cData,nMaxLen);
 	if(!nRtnChange)
 	{
 		delete []p_cData;
@@ -593,7 +593,7 @@ CString ZSocket::DomainNameToIp(const CString & strDomainName)
 	if(!IsStrIP(strDomainName))
 	{ 
 		char szDomainName[50] = { 0 };
-		if (TtoA_Z(strDomainName, szDomainName, sizeof(szDomainName)))
+		if (ZUtil::WtoA(strDomainName, szDomainName, sizeof(szDomainName)))
 		{
 			addrinfo hints;
 			addrinfo *res=NULL;

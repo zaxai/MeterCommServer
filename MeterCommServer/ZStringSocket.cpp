@@ -22,7 +22,7 @@ int ZStringSocket::StringSend(const CString & in_strData)
 	char *p_cData = new char[nMaxLen];
 	if (p_cData == NULL)
 		return ERROR_OTHER;
-	if (!TtoA_Z(in_strData, p_cData, nMaxLen))
+	if (!ZUtil::WtoA(in_strData, p_cData, nMaxLen))
 	{
 		delete[]p_cData;
 		return ERROR_OTHER;

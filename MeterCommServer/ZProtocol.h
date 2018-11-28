@@ -1,4 +1,5 @@
 #pragma once
+#include "ZUtil.h"
 class ZProtocol
 {
 public:

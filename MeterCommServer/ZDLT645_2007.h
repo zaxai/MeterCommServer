@@ -1,6 +1,5 @@
 #pragma once
 #include "ZProtocol.h"
-#include "MyFuncLib.h"
 #include "ZFileSocket.h"
 
 class ZDLT645_2007:public ZProtocol

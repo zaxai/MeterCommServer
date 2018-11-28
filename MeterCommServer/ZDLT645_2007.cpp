@@ -46,7 +46,7 @@ ZDLT645_2007::~ZDLT645_2007(void)
 
 int ZDLT645_2007::CallExDll(void)
 {
-	CString strPath=GetExeCatalogPath_Z();
+	CString strPath=ZUtil::GetExeCatalogPath();
 	m_hDll09SGCC=LoadLibraryEx(strPath+_T("\\exdll\\TestZhuzhan.dll"),NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 	if(m_hDll09SGCC==NULL)  
 		return 1;
@@ -216,7 +216,7 @@ int ZDLT645_2007::SetIp13SGCC(void)
 		char szIp[20]={0};
 		nPort=_ttoi(m_strNetCptPort);
 		nTimeOut=_ttoi(m_strNetCptTimeOut);
-		TtoA_Z(m_strNetCptIP,szIp,sizeof(szIp));
+		ZUtil::WtoA(m_strNetCptIP,szIp,sizeof(szIp));
 		nRtn=si(szIp,nPort,nTimeOut);
 	}
 	return nRtn;
@@ -234,7 +234,7 @@ int ZDLT645_2007::SetIp13SPG(void)
 		char szIp[20]={0};
 		nPort=_ttoi(m_strNetCptPort);
 		nTimeOut=_ttoi(m_strNetCptTimeOut);
-		TtoA_Z(m_strNetCptIP,szIp,sizeof(szIp));
+		ZUtil::WtoA(m_strNetCptIP,szIp,sizeof(szIp));
 		nRtn=si(szIp,nPort,nTimeOut);
 	}
 	return nRtn;
@@ -252,7 +252,7 @@ int ZDLT645_2007::OpenDevice15CSG(void)
 		char szIp[20]={0};
 		nPort=_ttoi(m_strNetCptPort);
 		nTimeOut=_ttoi(m_strNetCptTimeOut);
-		TtoA_Z(m_strNetCptIP,szIp,sizeof(szIp));
+		ZUtil::WtoA(m_strNetCptIP,szIp,sizeof(szIp));
 		nRtn=od("南网加密机",szIp,nPort,nTimeOut/1000);
 	}
 	return nRtn;
@@ -448,11 +448,11 @@ int ZDLT645_2007::InfraredAuth13SGCC(CString & strData)
 	ia=(InfraredAuth)GetProcAddress(m_hDll13SGCC,"InfraredAuth");
 	if(ia)
 	{
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
-		TtoA_Z(m_strRand1,szRand1,sizeof(szRand1));
-		TtoA_Z(m_strEndata1,szEndata1,sizeof(szEndata1));
-		TtoA_Z(m_strRand2IR,szRand2IR,sizeof(szRand2IR));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(m_strRand1,szRand1,sizeof(szRand1));
+		ZUtil::WtoA(m_strEndata1,szEndata1,sizeof(szEndata1));
+		ZUtil::WtoA(m_strRand2IR,szRand2IR,sizeof(szRand2IR));
 		nRtn=ia(szDiv,szEsamId,szRand1,szEndata1,szRand2IR,szEndata2);
 		if(!nRtn)
 			strData=szEndata2;
@@ -469,11 +469,11 @@ int ZDLT645_2007::InfraredAuth13SPG(CString & strData)
 	ia=(InfraredAuth)GetProcAddress(m_hDll13SPG,"InfraredAuth");
 	if(ia)
 	{
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
-		TtoA_Z(m_strRand1,szRand1,sizeof(szRand1));
-		TtoA_Z(m_strEndata1,szEndata1,sizeof(szEndata1));
-		TtoA_Z(m_strRand2IR,szRand2IR,sizeof(szRand2IR));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(m_strRand1,szRand1,sizeof(szRand1));
+		ZUtil::WtoA(m_strEndata1,szEndata1,sizeof(szEndata1));
+		ZUtil::WtoA(m_strRand2IR,szRand2IR,sizeof(szRand2IR));
 		nRtn=ia(szDiv,szEsamId,szRand1,szEndata1,szRand2IR,szEndata2);
 		if(!nRtn)
 			strData=szEndata2;
@@ -490,11 +490,11 @@ int ZDLT645_2007::InfraredAuth15CSG(CString & strData)
 	ia=(InfraredAuth)GetProcAddress(m_hDll15CSG,"InfraredAuth");
 	if(ia)
 	{
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
-		TtoA_Z(m_strRand1,szRand1,sizeof(szRand1));
-		TtoA_Z(m_strEndata1,szEndata1,sizeof(szEndata1));
-		TtoA_Z(m_strRand2IR,szRand2IR,sizeof(szRand2IR));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(m_strRand1,szRand1,sizeof(szRand1));
+		ZUtil::WtoA(m_strEndata1,szEndata1,sizeof(szEndata1));
+		ZUtil::WtoA(m_strRand2IR,szRand2IR,sizeof(szRand2IR));
 		nRtn=ia(0,szDiv,szEsamId,szRand1,szEndata1,szRand2IR,szEndata2);
 		if(!nRtn)
 			strData=szEndata2;
@@ -511,7 +511,7 @@ int ZDLT645_2007::IdentityAuthentication15CSG(void)
 	ia=(IdentityAuthentication)GetProcAddress(m_hDll15CSG,"IdentityAuthentication");
 	if(ia)
 	{	
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
      	nRtn=ia(0,szDiv,szOutRand,szOutCipherText);//身份认证
 		if(!nRtn)
 		{
@@ -531,7 +531,7 @@ int ZDLT645_2007::IdentityAuthentication13SPG(void)
 	ia=(IdentityAuthentication)GetProcAddress(m_hDll13SPG,"IdentityAuthentication");
 	if(ia)
 	{	
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
      	nRtn=ia(szDiv,szOutRand,szOutCipherText);//身份认证
 		if(!nRtn)
 		{
@@ -551,7 +551,7 @@ int ZDLT645_2007::IdentityAuthentication13SGCC(void)
 	ia=(IdentityAuthentication)GetProcAddress(m_hDll13SGCC,"IdentityAuthentication");
 	if(ia)
 	{	
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
      	nRtn=ia(szDiv,szOutRand,szOutCipherText);//身份认证
 		if(!nRtn)
 		{
@@ -572,7 +572,7 @@ int ZDLT645_2007::IdentityAuthentication09SGCC(void)
 	ia=(IdentityAuthentication)GetProcAddress(m_hDll09SGCC,"IdentityAuthentication");
 	if(ia)
 	{	
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
      	nRtn=ia(szDiv,szRandAndEndata);//身份认证
 		if(!nRtn)
 		{
@@ -593,10 +593,10 @@ int ZDLT645_2007::ParameterElseUpdate15CSG(CString & strData)
 	peu=(ParameterElseUpdate)GetProcAddress(m_hDll15CSG,"ParameterElseUpdate");
 	if(peu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=peu(0,szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -613,10 +613,10 @@ int ZDLT645_2007::ParameterElseUpdate13SPG(CString & strData)
 	peu=(ParameterElseUpdate)GetProcAddress(m_hDll13SPG,"ParameterElseUpdate");
 	if(peu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=peu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -633,10 +633,10 @@ int ZDLT645_2007::ParameterElseUpdate13SGCC(CString & strData)
 	peu=(ParameterElseUpdate)GetProcAddress(m_hDll13SGCC,"ParameterElseUpdate");
 	if(peu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=peu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -655,8 +655,8 @@ int ZDLT645_2007::ParameterElseUpdate09SGCC(CString & strData)
 	if(peu)
 	{
 		strRandDivApduData=m_strRand2+m_strDiv+m_strApdu+strData;
-		TtoA_Z(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
 		nRtn=peu(szRandDivApduData,szEsamId,szDataOut);
 		if(!nRtn)
 			strData = szDataOut;
@@ -673,10 +673,10 @@ int ZDLT645_2007::ParameterUpdate15CSG(CString & strData)
 	pu=(ParameterUpdate)GetProcAddress(m_hDll15CSG,"ParameterUpdate");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(0,szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -693,10 +693,10 @@ int ZDLT645_2007::Price1Update15CSG(CString & strData)
 	pu=(Price1Update)GetProcAddress(m_hDll15CSG,"Price1Update");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(0,szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -713,10 +713,10 @@ int ZDLT645_2007::Price2Update15CSG(CString & strData)
 	pu=(Price2Update)GetProcAddress(m_hDll15CSG,"Price2Update");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(0,szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -733,10 +733,10 @@ int ZDLT645_2007::ParameterUpdate13SPG(CString & strData)
 	pu=(ParameterUpdate)GetProcAddress(m_hDll13SPG,"ParameterUpdate");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -753,10 +753,10 @@ int ZDLT645_2007::ParameterUpdate113SPG(CString & strData)
 	pu=(ParameterUpdate1)GetProcAddress(m_hDll13SPG,"ParameterUpdate1");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -773,10 +773,10 @@ int ZDLT645_2007::ParameterUpdate213SPG(CString & strData)
 	pu=(ParameterUpdate2)GetProcAddress(m_hDll13SPG,"ParameterUpdate2");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -793,10 +793,10 @@ int ZDLT645_2007::ParameterUpdate13SGCC(CString & strData)
 	pu=(ParameterUpdate)GetProcAddress(m_hDll13SGCC,"ParameterUpdate");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -813,10 +813,10 @@ int ZDLT645_2007::ParameterUpdate113SGCC(CString & strData)
 	pu=(ParameterUpdate1)GetProcAddress(m_hDll13SGCC,"ParameterUpdate1");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -833,10 +833,10 @@ int ZDLT645_2007::ParameterUpdate213SGCC(CString & strData)
 	pu=(ParameterUpdate2)GetProcAddress(m_hDll13SGCC,"ParameterUpdate2");
 	if(pu)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strApdu,szApdu,sizeof(szApdu));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu,szApdu,sizeof(szApdu));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=pu(szRand2,szDiv,szApdu,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -855,7 +855,7 @@ int ZDLT645_2007::ParameterUpdate09SGCC(CString & strData)
 	if(pu)
 	{
 		strRandDivApduData=m_strRand2+m_strDiv+m_strApdu+strData;
-		TtoA_Z(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
+		ZUtil::WtoA(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
 		nRtn=pu(szRandDivApduData,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -874,7 +874,7 @@ int ZDLT645_2007::ParameterUpdate109SGCC(CString & strData)
 	if(pu)
 	{
 		strRandDivApduData=m_strRand2+m_strDiv+m_strApdu+strData;
-		TtoA_Z(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
+		ZUtil::WtoA(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
 		nRtn=pu(szRandDivApduData,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -893,7 +893,7 @@ int ZDLT645_2007::ParameterUpdate209SGCC(CString & strData)
 	if(pu)
 	{
 		strRandDivApduData=m_strRand2+m_strDiv+m_strApdu+strData;
-		TtoA_Z(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
+		ZUtil::WtoA(strRandDivApduData,szRandDivApduData,sizeof(szRandDivApduData));
 		nRtn=pu(szRandDivApduData,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -945,9 +945,9 @@ int ZDLT645_2007::DataClear115CSG(CString & strData)
 	dc1=(DataClear1)GetProcAddress(m_hDll15CSG,"DataClear1");
 	if(dc1)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=dc1(0,szRand2,szDiv,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -964,9 +964,9 @@ int ZDLT645_2007::DataClear113SPG(CString & strData)
 	dc1=(DataClear1)GetProcAddress(m_hDll13SPG,"DataClear1");
 	if(dc1)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=dc1(szRand2,szDiv,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -983,9 +983,9 @@ int ZDLT645_2007::DataClear113SGCC(CString & strData)
 	dc1=(DataClear1)GetProcAddress(m_hDll13SGCC,"DataClear1");
 	if(dc1)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=dc1(szRand2,szDiv,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1002,9 +1002,9 @@ int ZDLT645_2007::DataClear215CSG(CString & strData)
 	dc2=(DataClear2)GetProcAddress(m_hDll15CSG,"DataClear2");
 	if(dc2)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=dc2(0,szRand2,szDiv,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1021,9 +1021,9 @@ int ZDLT645_2007::DataClear213SPG(CString & strData)
 	dc2=(DataClear2)GetProcAddress(m_hDll13SPG,"DataClear2");
 	if(dc2)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=dc2(szRand2,szDiv,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1040,9 +1040,9 @@ int ZDLT645_2007::DataClear213SGCC(CString & strData)
 	dc2=(DataClear2)GetProcAddress(m_hDll13SGCC,"DataClear2");
 	if(dc2)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=dc2(szRand2,szDiv,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1059,10 +1059,10 @@ int ZDLT645_2007::UserControl15CSG(CString & strData)
 	uc=(UserControl)GetProcAddress(m_hDll15CSG,"UserControl");
 	if(uc)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=uc(0,szRand2,szDiv,szEsamId,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1079,10 +1079,10 @@ int ZDLT645_2007::UserControl13SPG(CString & strData)
 	uc=(UserControl)GetProcAddress(m_hDll13SPG,"UserControl");
 	if(uc)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=uc(szRand2,szDiv,szEsamId,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1099,10 +1099,10 @@ int ZDLT645_2007::UserControl13SGCC(CString & strData)
 	uc=(UserControl)GetProcAddress(m_hDll13SGCC,"UserControl");
 	if(uc)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(m_strEsamId,szEsamId,sizeof(szEsamId));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=uc(szRand2,szDiv,szEsamId,szDataIn,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1121,7 +1121,7 @@ int ZDLT645_2007::UserControl09SGCC(CString & strData)
 	if(uc)
 	{
 		strRandDivEsamNumData=m_strRand2+m_strDiv+m_strEsamId+strData;
-		TtoA_Z(strRandDivEsamNumData,szRandDivEsamNumData,sizeof(szRandDivEsamNumData));
+		ZUtil::WtoA(strRandDivEsamNumData,szRandDivEsamNumData,sizeof(szRandDivEsamNumData));
 		nRtn=uc(szRandDivEsamNumData,szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
@@ -1138,9 +1138,9 @@ int ZDLT645_2007::InitPurse15CSG(CString & strData)
 	ip=(InitPurse)GetProcAddress(m_hDll15CSG,"InitPurse");
 	if(ip)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=ip(0,szRand2,szDiv,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -1157,9 +1157,9 @@ int ZDLT645_2007::InintPurse13SPG(CString & strData)
 	ip=(InintPurse)GetProcAddress(m_hDll13SPG,"InintPurse");
 	if(ip)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=ip(szRand2,szDiv,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -1176,9 +1176,9 @@ int ZDLT645_2007::InintPurse13SGCC(CString & strData)
 	ip=(InintPurse)GetProcAddress(m_hDll13SGCC,"InintPurse");
 	if(ip)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=ip(szRand2,szDiv,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -1197,7 +1197,7 @@ int ZDLT645_2007::InCreasePurse09SGCC(CString & strData)
 	if(icp)
 	{
 		strRandDivData=m_strRand2+m_strDiv+strData;
-		TtoA_Z(strRandDivData,szRandDivData,sizeof(szRandDivData));
+		ZUtil::WtoA(strRandDivData,szRandDivData,sizeof(szRandDivData));
 		nRtn=icp(szRandDivData,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -1214,9 +1214,9 @@ int ZDLT645_2007::SwitchChargeMode15CSG(CString & strData)
 	scm=(SwitchChargeMode)GetProcAddress(m_hDll15CSG,"SwitchChargeMode");
 	if(scm)
 	{
-		TtoA_Z(m_strRand2,szRand2,sizeof(szRand2));
-		TtoA_Z(m_strDiv,szDiv,sizeof(szDiv));
-		TtoA_Z(strData,szDataIn,sizeof(szDataIn));
+		ZUtil::WtoA(m_strRand2,szRand2,sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv,szDiv,sizeof(szDiv));
+		ZUtil::WtoA(strData,szDataIn,sizeof(szDataIn));
 		nRtn=scm(0,szRand2,szDiv,szDataIn,szDataOut);
 		if(!nRtn)
 			strData=szDataOut;
@@ -1240,7 +1240,7 @@ int ZDLT645_2007::GetEncodeRemoteData(CString & strData,CString & strError)
 	{
 		strDataOut.Delete(0,10);
 		std::vector<CString> vec_strData;
-		StrSplit_Z(strDataOut, vec_strData, tcSplitNetData, strDataOut.Right(1) == tcSplitNetData);
+		ZUtil::StrSplit(strDataOut, vec_strData, tcSplitNetData, strDataOut.Right(1) == tcSplitNetData);
 		if (vec_strData.size() == 2)
 		{
 			nRtn = _ttoi(vec_strData[0]);
@@ -2567,7 +2567,7 @@ void ZDLT645_2007::GetNetCptInfo(CString & strIP, CString & strPort, CString & s
 bool ZDLT645_2007::Set15Param(const CString & strParam)
 {
 	std::vector<CString> vec_strDatas;
-	StrSplit_Z(strParam,vec_strDatas,_T(','),strParam.Right(1)==_T(','));
+	ZUtil::StrSplit(strParam,vec_strDatas,_T(','),strParam.Right(1)==_T(','));
 	if(vec_strDatas.size()!=15)
 		return false;
 	int i=0;
@@ -2660,7 +2660,7 @@ CString ZDLT645_2007::GetParamByCstring(void)
 bool ZDLT645_2007::SetParamByCstring(const CString & strParam)
 {
 	std::vector<CString> vec_strDatas;
-	StrSplit_Z(strParam,vec_strDatas,_T(','),strParam.Right(1)==_T(','));
+	ZUtil::StrSplit(strParam,vec_strDatas,_T(','),strParam.Right(1)==_T(','));
 	if(vec_strDatas.size()!=16)
 		return false;
 	int i=0;

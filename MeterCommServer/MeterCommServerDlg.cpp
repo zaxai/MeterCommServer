@@ -14,6 +14,7 @@
 
 const TCHAR tcSplitError = _T('$');
 const TCHAR tcSplitNetData = _T('*');
+const CString strValueName(_T("MeterCommServer"));
 //定时器
 const int nClearMsg=1;
 
@@ -156,8 +157,8 @@ BOOL CMeterCommServerDlg::OnInitDialog()
 	m_hEvtExit =CreateEvent(NULL,TRUE,TRUE,NULL);
 	SetDlgItemText(IDC_EDIT_TIME,_T("10"));
 	GetDlgItem(IDC_EDIT_NUM)->EnableWindow(FALSE);
-	if(CheckAutoRun_Z(GetExePath_Z()))
-		m_checkAutoRun.SetCheck(1);
+	if(ZOperatorRegedit::CheckAutoRun(ZUtil::GetExePath(), strValueName))
+		m_checkAutoRun.SetCheck(TRUE);
 	InitTray();
 	OnBnClickedButtonStartserver();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -275,7 +276,13 @@ void CMeterCommServerDlg::OnBnClickedCheckCleartime()
 void CMeterCommServerDlg::OnBnClickedCheckAutorun()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SetAutoRun_Z(m_checkAutoRun.GetCheck(),GetExePath_Z());
+	ZOperatorRegedit::SetAutoRun(ZUtil::GetExePath(), strValueName, m_checkAutoRun.GetCheck());
+	BOOL nRtn = ZOperatorRegedit::CheckAutoRun(ZUtil::GetExePath(), strValueName);
+	if (nRtn != m_checkAutoRun.GetCheck())
+	{
+		AfxMessageBox(_T("设置失败，需要管理员权限！"));
+		m_checkAutoRun.SetCheck(nRtn);
+	}
 }
 
 UINT CMeterCommServerDlg::ListenThreadFunc(LPVOID lpParam)
@@ -369,7 +376,7 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 			case 1://软件更新
 			{
 				CString strPath;
-				strPath = GetExeCatalogPath_Z() + _T("\\update\\MeterComm.exe");
+				strPath = ZUtil::GetExeCatalogPath() + _T("\\update\\MeterComm.exe");
 				ULONGLONG llLength = 0;
 				p_md->m_sockClient.SetFilePath(strPath);
 				CStdioFile file;
@@ -408,7 +415,7 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 			case 3://方案目录
 			{
 				std::vector<CString> vec_strPaths;
-				BrowseCurrentDir_Z(GetExeCatalogPath_Z() + _T("\\plan\\network"), vec_strPaths);
+				ZUtil::BrowseCurrentDir(ZUtil::GetExeCatalogPath() + _T("\\plan\\network"), vec_strPaths);
 				int nSize = vec_strPaths.size();
 				for (int i = 0; i < nSize; ++i)
 				{
@@ -422,7 +429,7 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 			case 4://方案传输
 			{
 				std::vector<CString> vec_strPaths;
-				BrowseCurrentDir_Z(GetExeCatalogPath_Z() + _T("\\plan\\network"), vec_strPaths);
+				ZUtil::BrowseCurrentDir(ZUtil::GetExeCatalogPath() + _T("\\plan\\network"), vec_strPaths);
 				int nSize = vec_strPaths.size();
 				int i = 0;
 				for (; i < nSize; ++i)
@@ -461,7 +468,7 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 			case 5://数据库传输
 			{
 				CString strPath;
-				strPath = GetExeCatalogPath_Z() + _T("\\res\\DataItem.di");
+				strPath = ZUtil::GetExeCatalogPath() + _T("\\res\\DataItem.di");
 				ULONGLONG llLength = 0;
 				p_md->m_sockClient.SetFilePath(strPath);
 				CStdioFile file;

@@ -1,6 +1,5 @@
 #pragma once
 #include "ZProtocol.h"
-#include "MyFuncLib.h"
 #include "Markup.h"
 #include "ZFileSocket.h"
 

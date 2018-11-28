@@ -67,7 +67,7 @@ BOOL ZOperatorRegedit::GetREG_SZData(LPCTSTR lpSubKey, LPCTSTR lpValueName, CStr
 	HKEY hKey;
 	if (RegOpenKey(HKEY_CURRENT_USER, lpSubKey, &hKey) == ERROR_SUCCESS)
 	{
-		TCHAR szData[_MAX_PATH] = { 0 };
+		TCHAR szData[MAX_PATH] = { 0 };
 		DWORD dwSize = sizeof(szData);
 		DWORD dwType;
 		if (RegQueryValueEx(hKey, lpValueName, NULL, &dwType, (LPBYTE)szData, &dwSize) == ERROR_SUCCESS)

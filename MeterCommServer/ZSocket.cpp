@@ -413,12 +413,13 @@ int ZSocket::Recv(CString & out_strData,const int & in_nMaxRecvLen,const bool & 
 	ResetEvent(m_hEvtExitComm);
 	out_strData.Empty();
 	int nRtn= ERROR_OK,nActRecvLen;
+	char *p_cData = NULL;
 	if(in_nMaxRecvLen<=0)
 	{
 		nRtn= ERROR_OTHER;
 		goto end;
 	}
-	char *p_cData=new char[in_nMaxRecvLen+1];
+	p_cData=new char[in_nMaxRecvLen+1];
 	if(p_cData==NULL)
 	{
 		nRtn= ERROR_OTHER;
@@ -487,12 +488,13 @@ int ZSocket::Recv(CString & out_strData, const bool & in_bIsBlocking)
 	int nRtn = ERROR_OK, nActRecvLen;
 	const int nMaxRecvLen = 1024;
 	CStringA strRecv;
+	char *p_cData = NULL;
 	if (nMaxRecvLen <= 0)
 	{
 		nRtn = ERROR_OTHER;
 		goto end;
 	}
-	char *p_cData = new char[nMaxRecvLen + 1];
+	p_cData = new char[nMaxRecvLen + 1];
 	if (p_cData == NULL)
 	{
 		nRtn = ERROR_OTHER;

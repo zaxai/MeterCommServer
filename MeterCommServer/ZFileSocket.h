@@ -1,3 +1,9 @@
+/*
+** Version  1.0.0.1
+** Date     2018.12.01
+** Author   zax
+** Copyright (C) Since 2009 Zaxai.Com
+*/
 #pragma once
 #include "ZStringSocket.h"
 class ZFileSocket :

@@ -528,6 +528,12 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 							strPort = _T("6666");
 						}
 						break;
+						case 5:
+						{
+							strIP = _T("10.0.17.106");
+							strPort = _T("8018");
+						}
+						break;
 						}
 						p_md->m_dlt645.SetNetCptInfo(strIP, strPort, strTimeOut);
 					}

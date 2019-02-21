@@ -5,6 +5,7 @@ HMODULE ZDLT645_2007::m_hDll09SGCC=NULL;
 HMODULE ZDLT645_2007::m_hDll13SGCC=NULL;
 HMODULE ZDLT645_2007::m_hDll13SPG=NULL;
 HMODULE ZDLT645_2007::m_hDll15CSG=NULL;
+HMODULE ZDLT645_2007::m_hDll18SGC = NULL;
 
 const TCHAR tcSplitChar = _T('#');
 const TCHAR tcSplitError = _T('$');
@@ -59,6 +60,9 @@ int ZDLT645_2007::CallExDll(void)
 	m_hDll15CSG= LoadLibraryEx(strPath+_T("\\exdll\\MasterStation_HSM.dll"), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 	if(m_hDll15CSG==NULL)  
 		return 4;
+	m_hDll18SGC = LoadLibraryEx(strPath + _T("\\exdll\\18SGC\\Detecting_EMF_HSM.dll"), NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+	if (m_hDll18SGC == NULL)
+		return 5;
 	return 0;
 }
 
@@ -73,6 +77,8 @@ void ZDLT645_2007::UncallExDll(void)
 		FreeLibrary(m_hDll13SPG);
 	if(m_hDll15CSG!=NULL)
 		FreeLibrary(m_hDll15CSG);
+	if (m_hDll18SGC != NULL)
+		FreeLibrary(m_hDll18SGC);
 }
 
 bool ZDLT645_2007::CStringToBYTEArrBy2(const CString & in_str,BYTE *out_pArray,const int & in_nMaxArrayLen)
@@ -391,6 +397,51 @@ CString ZDLT645_2007::ErrorInfo15CSG(const int & nError)
 	return strErrorInfo;
 }
 
+CString ZDLT645_2007::ErrorInfo18SGC(const int & nError)
+{
+
+	CString strErrorInfo;
+	strErrorInfo.Format(_T("%d%c"), nError, tcSplitError);
+	switch (nError)
+	{
+	case -1: strErrorInfo += _T("DLL调用出错"); break;
+	case 1000: strErrorInfo += _T("打开密码机错误"); break;
+	case 1600: strErrorInfo += _T("打开读卡器错误"); break;
+	case 1601: strErrorInfo += _T("芯片复位错误"); break;
+	case 1602: strErrorInfo += _T("卡片类型错误"); break;
+	case 1603: strErrorInfo += _T("卡片状态错误"); break;
+	case 1604: strErrorInfo += _T("外部认证错误"); break;
+	case 2100: strErrorInfo += _T("参数不支持"); break;
+	case 2101: strErrorInfo += _T("参数1错误"); break;
+	case 2102: strErrorInfo += _T("参数2错误"); break;
+	case 2103: strErrorInfo += _T("参数3错误"); break;
+	case 2104: strErrorInfo += _T("参数4错误"); break;
+	case 2105: strErrorInfo += _T("参数5错误"); break;
+	case 2106: strErrorInfo += _T("参数6错误"); break;
+	case 2107: strErrorInfo += _T("参数7错误"); break;
+	case 2108: strErrorInfo += _T("参数8错误"); break;
+	case 2109: strErrorInfo += _T("参数9错误"); break;
+	case 2110: strErrorInfo += _T("参数10错误"); break;
+	default:
+	{
+		switch (nError / 100)
+		{
+		case 11: strErrorInfo += _T("数据加密错误"); break;
+		case 12: strErrorInfo += _T("MAC计算错误"); break;
+		case 13: strErrorInfo += _T("MAC校验错误"); break;
+		case 14: strErrorInfo += _T("取随机数错误"); break;
+		case 15: strErrorInfo += _T("密钥导出错误"); break;
+		case 17: strErrorInfo += _T("写文件错误"); break;
+		case 18: strErrorInfo += _T("读文件错误"); break;
+		case 19: strErrorInfo += _T("更新密钥错误"); break;
+		case 20: strErrorInfo += _T("选择文件错误"); break;
+		}
+	}
+	break;
+	}
+	return strErrorInfo;
+}
+
 int ZDLT645_2007::InfraredRand13SGCC(void)
 {
 	typedef int (_stdcall *InfraredRand)(IN char *pOutput);
@@ -502,6 +553,55 @@ int ZDLT645_2007::InfraredAuth15CSG(CString & strData)
 	return nRtn;
 }
 
+int ZDLT645_2007::ESAMIdentityAuthentication18SGC(CString & strData)
+{
+	typedef int(_stdcall *ESAMIdentityAuthentication)(char * IP, int Port, int TimeOut, int Flag, char * inRand, char *OutEndata);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char szRand[20] = { 0 }, szEndata[20] = { 0 };
+	ESAMIdentityAuthentication eia;
+	int nRtn = -1;
+	eia = (ESAMIdentityAuthentication)GetProcAddress(m_hDll18SGC, "ESAMIdentityAuthentication");
+	if (eia)
+	{
+		nPort = _ttoi(m_strNetCptPort);
+		nTimeOut = _ttoi(m_strNetCptTimeOut);
+		ZUtil::WtoA(m_strNetCptIP, szIp, sizeof(szIp));
+		ZUtil::WtoA(m_strRand2+_T("00000000"), szRand, sizeof(szRand));
+		nRtn = eia(szIp, nPort, nTimeOut / 1000, 0, szRand, szEndata);//ESAM外部认证
+		if (!nRtn)
+		{
+			strData = szEndata;
+		}
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::IdentityAuthentication18SGC(void)
+{
+	typedef int(_stdcall *IdentityAuthentication)(char * IP, int Port, int TimeOut, int Flag, char * PutDiv, char * OutRand, char *pOutEndata);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char szOutRand[50] = { 0 }, szOutCipherText[50] = { 0 }, szDiv[20] = { 0 };
+	IdentityAuthentication ia;
+	int nRtn = -1;
+	ia = (IdentityAuthentication)GetProcAddress(m_hDll18SGC, "IdentityAuthentication");
+	if (ia)
+	{
+		nPort = _ttoi(m_strNetCptPort);
+		nTimeOut = _ttoi(m_strNetCptTimeOut);
+		ZUtil::WtoA(m_strNetCptIP, szIp, sizeof(szIp));
+		ZUtil::WtoA(m_strDiv, szDiv, sizeof(szDiv));
+		nRtn = ia(szIp, nPort, nTimeOut / 1000, 0, szDiv, szOutRand, szOutCipherText);//身份认证
+		if (!nRtn)
+		{
+			m_strRand1 = szOutRand;
+			m_strEndata1 = szOutCipherText;
+		}
+	}
+	return nRtn;
+}
+
 int ZDLT645_2007::IdentityAuthentication15CSG(void)
 {
 	typedef int (_stdcall *IdentityAuthentication)(int Flag,char * PutDiv,char * OutRand,char *pOutEndata);
@@ -584,6 +684,31 @@ int ZDLT645_2007::IdentityAuthentication09SGCC(void)
 	return nRtn;
 }
 
+int ZDLT645_2007::ParameterElseUpdate18SGC(CString & strData)
+{
+	typedef int(_stdcall *ParameterElseUpdate)(char * IP,int Port,int TimeOut,int Flag, char * PutRand, char * PutDiv, char * PutApdu, char * PutData, char * OutEndata);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char szRand2[10] = { 0 }, szDiv[20] = { 0 }, szApdu[12] = { 0 }, szDataIn[500] = { 0 }, szDataOut[500] = { 0 };
+	ParameterElseUpdate peu;
+	int nRtn = -1;
+	peu = (ParameterElseUpdate)GetProcAddress(m_hDll18SGC, "ParameterElseUpdate");
+	if (peu)
+	{
+		nPort = _ttoi(m_strNetCptPort);
+		nTimeOut = _ttoi(m_strNetCptTimeOut);
+		ZUtil::WtoA(m_strNetCptIP, szIp, sizeof(szIp));
+		ZUtil::WtoA(m_strRand2, szRand2, sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv, szDiv, sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu, szApdu, sizeof(szApdu));
+		ZUtil::WtoA(strData, szDataIn, sizeof(szDataIn));
+		nRtn = peu(szIp, nPort, nTimeOut / 1000, 0, szRand2, szDiv, szApdu, szDataIn, szDataOut);
+		if (!nRtn)
+			strData = szDataOut;
+	}
+	return nRtn;
+}
+
 int ZDLT645_2007::ParameterElseUpdate15CSG(CString & strData)
 {
 	typedef int (_stdcall *ParameterElseUpdate)(int Flag,char * PutRand,char * PutDiv,char * PutApdu,char * PutData,char * OutEndata);
@@ -659,6 +784,31 @@ int ZDLT645_2007::ParameterElseUpdate09SGCC(CString & strData)
 		ZUtil::WtoA(m_strEsamId,szEsamId,sizeof(szEsamId));
 		nRtn=peu(szRandDivApduData,szEsamId,szDataOut);
 		if(!nRtn)
+			strData = szDataOut;
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::ParameterUpdate18SGC(CString & strData)
+{
+	typedef int(_stdcall *ParameterUpdate)(char * IP, int Port, int TimeOut, int Flag, char * PutRand, char * PutDiv, char * PutApdu, char * PutData, char * OutData);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char szRand2[10] = { 0 }, szDiv[20] = { 0 }, szApdu[12] = { 0 }, szDataIn[500] = { 0 }, szDataOut[500] = { 0 };
+	ParameterUpdate pu;
+	int nRtn = -1;
+	pu = (ParameterUpdate)GetProcAddress(m_hDll18SGC, "ParameterUpdate");
+	if (pu)
+	{
+		nPort = _ttoi(m_strNetCptPort);
+		nTimeOut = _ttoi(m_strNetCptTimeOut);
+		ZUtil::WtoA(m_strNetCptIP, szIp, sizeof(szIp));
+		ZUtil::WtoA(m_strRand2, szRand2, sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv, szDiv, sizeof(szDiv));
+		ZUtil::WtoA(m_strApdu, szApdu, sizeof(szApdu));
+		ZUtil::WtoA(strData, szDataIn, sizeof(szDataIn));
+		nRtn = pu(szIp, nPort, nTimeOut / 1000, 0, szRand2, szDiv, szApdu, szDataIn, szDataOut);
+		if (!nRtn)
 			strData = szDataOut;
 	}
 	return nRtn;
@@ -1050,6 +1200,31 @@ int ZDLT645_2007::DataClear213SGCC(CString & strData)
 	return nRtn;
 }
 
+int ZDLT645_2007::UserControl18SGC(CString & strData)
+{
+	typedef int(_stdcall *UserControl)(char * IP, int Port, int TimeOut, int Flag, char * PutRand, char * PutDiv, char * PutEsamNo, char * PutData, char * OutEndata);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char szRand2[10] = { 0 }, szDiv[20] = { 0 }, szEsamId[18] = { 0 }, szDataIn[500] = { 0 }, szDataOut[500] = { 0 };
+	UserControl uc;
+	int nRtn = -1;
+	uc = (UserControl)GetProcAddress(m_hDll18SGC, "UserControl");
+	if (uc)
+	{
+		nPort = _ttoi(m_strNetCptPort);
+		nTimeOut = _ttoi(m_strNetCptTimeOut);
+		ZUtil::WtoA(m_strNetCptIP, szIp, sizeof(szIp));
+		ZUtil::WtoA(m_strRand2, szRand2, sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv, szDiv, sizeof(szDiv));
+		ZUtil::WtoA(m_strEsamId, szEsamId, sizeof(szEsamId));
+		ZUtil::WtoA(strData, szDataIn, sizeof(szDataIn));
+		nRtn = uc(szIp, nPort, nTimeOut / 1000, 0, szRand2, szDiv, szEsamId, szDataIn, szDataOut);
+		if (!nRtn)
+			strData = szDataOut;
+	}
+	return nRtn;
+}
+
 int ZDLT645_2007::UserControl15CSG(CString & strData)
 {
 	typedef int (_stdcall *UserControl)(int Flag,char * PutRand, char * PutDiv, char * PutEsamNo, char * PutData, char * OutEndata);
@@ -1123,6 +1298,30 @@ int ZDLT645_2007::UserControl09SGCC(CString & strData)
 		strRandDivEsamNumData=m_strRand2+m_strDiv+m_strEsamId+strData;
 		ZUtil::WtoA(strRandDivEsamNumData,szRandDivEsamNumData,sizeof(szRandDivEsamNumData));
 		nRtn=uc(szRandDivEsamNumData,szDataOut);
+		if (!nRtn)
+			strData = szDataOut;
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::InitPurse18SGC(CString & strData)
+{
+	typedef int(_stdcall *InitPurse)(char * IP, int Port, int TimeOut, int Flag, char * PutRand, char * PutDiv, char * PutData, char * OutData);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char szRand2[10] = { 0 }, szDiv[20] = { 0 }, szDataIn[500] = { 0 }, szDataOut[500] = { 0 };
+	InitPurse ip;
+	int nRtn = -1;
+	ip = (InitPurse)GetProcAddress(m_hDll18SGC, "InitPurse");
+	if (ip)
+	{
+		nPort = _ttoi(m_strNetCptPort);
+		nTimeOut = _ttoi(m_strNetCptTimeOut);
+		ZUtil::WtoA(m_strNetCptIP, szIp, sizeof(szIp));
+		ZUtil::WtoA(m_strRand2, szRand2, sizeof(szRand2));
+		ZUtil::WtoA(m_strDiv, szDiv, sizeof(szDiv));
+		ZUtil::WtoA(strData, szDataIn, sizeof(szDataIn));
+		nRtn = ip(szIp, nPort, nTimeOut / 1000, 0, szRand2, szDiv, szDataIn, szDataOut);
 		if (!nRtn)
 			strData = szDataOut;
 	}
@@ -1224,6 +1423,150 @@ int ZDLT645_2007::SwitchChargeMode15CSG(CString & strData)
 	return nRtn;
 }
 
+int ZDLT645_2007::ReadParamPresetCard18SGC(CString & strCardNum, CString & strAppBina, CString & strMoney, CString & strTimeZoneParam)
+{
+	typedef int(_stdcall *ReadParamPresetCard)(char * cardNum, char * fillAppBina, char * fileMoney, char * fileTimeZoneParam);
+	char sz_cCardNum[20] = { 0 }, sz_cAppBina[500] = { 0 }, sz_cMoney[500] = { 0 }, sz_cTimeZoneParam[500] = { 0 };
+	ReadParamPresetCard rppc;
+	int nRtn = -1;
+	rppc = (ReadParamPresetCard)GetProcAddress(m_hDll18SGC, "ReadParamPresetCard");
+	if (rppc)
+	{
+		nRtn = rppc(sz_cCardNum, sz_cAppBina, sz_cMoney, sz_cTimeZoneParam);
+		if (!nRtn)
+		{
+			strCardNum = sz_cCardNum;
+			strAppBina = sz_cAppBina;
+			strMoney = sz_cMoney;
+			strTimeZoneParam = sz_cTimeZoneParam;
+		}
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::WriteParamPresetCard18SGC(const CString & strIp, const CString & strPort, const CString & strTimeOut, const CString & strAppBina, const CString & strMoney, const CString & strTimeZoneParam)
+{
+	typedef int(_stdcall *WriteParamPresetCard)(char * IP, int Port, int TimeOut, char * fillAppBina, char * fileMoney, char * fileTimeZoneParam);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char sz_cAppBina[500] = { 0 }, sz_cMoney[500] = { 0 }, sz_cTimeZoneParam[500] = { 0 };
+	WriteParamPresetCard wppc;
+	int nRtn = -1;
+	wppc = (WriteParamPresetCard)GetProcAddress(m_hDll18SGC, "WriteParamPresetCard");
+	if (wppc)
+	{
+		nPort = _ttoi(strPort);
+		nTimeOut = _ttoi(strTimeOut);
+		ZUtil::WtoA(strIp, szIp, sizeof(szIp));
+		ZUtil::WtoA(strAppBina, sz_cAppBina, sizeof(sz_cAppBina));
+		ZUtil::WtoA(strMoney, sz_cMoney, sizeof(sz_cMoney));
+		ZUtil::WtoA(strTimeZoneParam, sz_cTimeZoneParam, sizeof(sz_cTimeZoneParam));
+		nRtn = wppc(szIp, nPort, nTimeOut / 1000, sz_cAppBina, sz_cMoney, sz_cTimeZoneParam);
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::ReadTestingCard18SGC(CString & strCardNum, CString & strESAMAppBina, CString & strESAMWorkInfo, CString & strESAMMoney)
+{
+	typedef int(_stdcall *ReadTestingCard)(char * cardNum, char * fillESAMAppBina, char * fileESAMWorkInfo, char * fileESAMMoney);
+	char sz_cCardNum[20] = { 0 }, sz_cESAMAppBina[500] = { 0 }, sz_cESAMWorkInfo[500] = { 0 }, sz_cESAMMoney[500] = { 0 };
+	ReadTestingCard rtc;
+	int nRtn = -1;
+	rtc = (ReadTestingCard)GetProcAddress(m_hDll18SGC, "ReadTestingCard");
+	if (rtc)
+	{
+		nRtn = rtc(sz_cCardNum, sz_cESAMAppBina, sz_cESAMWorkInfo, sz_cESAMMoney);
+		if (!nRtn)
+		{
+			strCardNum = sz_cCardNum;
+			strESAMAppBina = sz_cESAMAppBina;
+			strESAMWorkInfo = sz_cESAMWorkInfo;
+			strESAMMoney = sz_cESAMMoney;
+		}
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::ReadIncreaseAmountCard18SGC(CString & strCardNum, CString & strAppBina)
+{
+	typedef int(_stdcall *ReadIncreaseAmountCard)(char * cardNum, char * fillAppBina);
+	char sz_cCardNum[20] = { 0 }, sz_cAppBina[500] = { 0 };
+	ReadIncreaseAmountCard riac;
+	int nRtn = -1;
+	riac = (ReadIncreaseAmountCard)GetProcAddress(m_hDll18SGC, "ReadIncreaseAmountCard");
+	if (riac)
+	{
+		nRtn = riac(sz_cCardNum, sz_cAppBina);
+		if (!nRtn)
+		{
+			strCardNum = sz_cCardNum;
+			strAppBina = sz_cAppBina;
+		}
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::WriteIncreaseAmountCard18SGC(const CString & strIp, const CString & strPort, const CString & strTimeOut, const CString & strAppBina)
+{
+	typedef int(_stdcall *WriteIncreaseAmountCard)(char * IP, int Port, int TimeOut, char * fillAppBina);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char sz_cAppBina[500] = { 0 };
+	WriteIncreaseAmountCard wiac;
+	int nRtn = -1;
+	wiac = (WriteIncreaseAmountCard)GetProcAddress(m_hDll18SGC, "WriteIncreaseAmountCard");
+	if (wiac)
+	{
+		nPort = _ttoi(strPort);
+		nTimeOut = _ttoi(strTimeOut);
+		ZUtil::WtoA(strIp, szIp, sizeof(szIp));
+		ZUtil::WtoA(strAppBina, sz_cAppBina, sizeof(sz_cAppBina));
+		nRtn = wiac(szIp, nPort, nTimeOut / 1000, sz_cAppBina);
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::ReadModifyMeterNumCard18SGC(CString & strCardNum, CString & strAppBina, CString & strReverAppBina)
+{
+	typedef int(_stdcall *ReadModifyMeterNumCard)(char * cardNum, char * fillAppBina, char * fileReverAppBina);
+	char sz_cCardNum[20] = { 0 }, sz_cAppBina[500] = { 0 }, sz_cReverAppBina[500] = { 0 };
+	ReadModifyMeterNumCard rmmnc;
+	int nRtn = -1;
+	rmmnc = (ReadModifyMeterNumCard)GetProcAddress(m_hDll18SGC, "ReadModifyMeterNumCard");
+	if (rmmnc)
+	{
+		nRtn = rmmnc(sz_cCardNum, sz_cAppBina, sz_cReverAppBina);
+		if (!nRtn)
+		{
+			strCardNum = sz_cCardNum;
+			strAppBina = sz_cAppBina;
+			strReverAppBina = sz_cReverAppBina;
+		}
+	}
+	return nRtn;
+}
+
+int ZDLT645_2007::WriteModifyMeterNumCard18SGC(const CString & strIp, const CString & strPort, const CString & strTimeOut, const CString & strAppBina, const CString & strReverAppBina)
+{
+	typedef int(_stdcall *WriteModifyMeterNumCard)(char * IP, int Port, int TimeOut, char * fillAppBina, char * fileReverAppBina);
+	int nPort, nTimeOut;
+	char szIp[20] = { 0 };
+	char sz_cAppBina[500] = { 0 }, sz_cReverAppBina[500] = { 0 };
+	WriteModifyMeterNumCard wmmnc;
+	int nRtn = -1;
+	wmmnc = (WriteModifyMeterNumCard)GetProcAddress(m_hDll18SGC, "WriteModifyMeterNumCard");
+	if (wmmnc)
+	{
+		nPort = _ttoi(strPort);
+		nTimeOut = _ttoi(strTimeOut);
+		ZUtil::WtoA(strIp, szIp, sizeof(szIp));
+		ZUtil::WtoA(strAppBina, sz_cAppBina, sizeof(sz_cAppBina));
+		ZUtil::WtoA(strReverAppBina, sz_cReverAppBina, sizeof(sz_cReverAppBina));
+		nRtn = wmmnc(szIp, nPort, nTimeOut / 1000, sz_cAppBina, sz_cReverAppBina);
+	}
+	return nRtn;
+}
+
 int ZDLT645_2007::GetEncodeRemoteData(CString & strData,CString & strError)
 {
 	int nRtn = 0;
@@ -1310,35 +1653,47 @@ int ZDLT645_2007::GetApdu(void)
 
 int ZDLT645_2007::GetApduDeviation(CString & strDeviation)
 {
-	const CString sz_strDI[]=
+	const CString sz_strDI[] =
 	{
 		_T("04000108"),_T("04001001"),_T("04001002"),_T("04000306"),_T("04000307"),_T("04000402"),
 		_T("0400040E"),_T("070001FF"),_T("040501FF"),_T("040604FF"),_T("040606FF"),_T("040607FF"),
 		_T("040502FF"),_T("040605FF"),_T("04060AFF"),_T("04060BFF"),_T("04000109")
 	};
-	const CString sz_strDevi99[]=
+	const CString sz_strDeviSGCC[] =//国网陕西地电ESAM
 	{
 		_T("0A"),_T("10"),_T("14"),_T("18"),_T("1B"),_T("1E"),
 		_T("24"),_T("2B"),_T("04"),_T("84"),_T("34"),_T("7A"),
 		_T("04"),_T("84"),_T("34"),_T("7A"),_T("C4")
 	};
-		const CString sz_strDevi97[]=
+	const CString sz_strDeviCSG[] =//南网ESAM
 	{
 		_T("0A"),_T("10"),_T("14"),_T("18"),_T("1B"),_T("1E"),
 		_T("24"),_T("2B"),_T("04"),_T("84"),_T("34"),_T("7A"),
 		_T("04"),_T("84"),_T("34"),_T("7A"),_T("C0")
 	};
-	const int sz_nRtn99[]=
+	const CString sz_strDeviSGC[] =//蒙西ESAM
+	{
+		_T("05"),_T("0F"),_T("13"),_T("17"),_T("1A"),_T("A6"),
+		_T("25"),_T("AC"),_T("00"),_T("00"),_T("00"),_T("00"),
+		_T("00"),_T("00"),_T("00"),_T("00"),_T("00")
+	};
+	const int sz_nRtnSGCC[]=
 	{
 		82,82,82,82,82,82,
 		82,82,83,83,83,83,
 		84,84,84,84,84
 	};
-	const int sz_nRtn97[]=
+	const int sz_nRtnCSG[]=
 	{
 		81,81,81,81,81,81,
 		81,81,83,83,83,83,
 		84,84,84,84,84
+	};
+	const int sz_nRtnSGC[] =
+	{
+		81,81,81,81,81,81,
+		81,81,81,81,81,81,
+		81,81,81,81,81
 	};
 	int i;
 	for(i=0;i<17;++i)
@@ -1347,13 +1702,21 @@ int ZDLT645_2007::GetApduDeviation(CString & strDeviation)
 		{
 			if(m_strGrade==_T("99"))
 			{
-				strDeviation=sz_strDevi99[i];
-				return sz_nRtn99[i];
+				if (m_nDllType == 5)
+				{
+					strDeviation = sz_strDeviSGC[i];
+					return sz_nRtnSGC[i];
+				}
+				else
+				{
+					strDeviation = sz_strDeviSGCC[i];
+					return sz_nRtnSGCC[i];
+				}
 			}
 			else
 			{
-				strDeviation=sz_strDevi97[i];
-				return sz_nRtn97[i];
+				strDeviation= sz_strDeviCSG[i];
+				return sz_nRtnCSG[i];
 			}
 		}
 	}
@@ -1510,6 +1873,16 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				}
 			}
 			break;
+			case 5:
+			{
+				int nRtn = IdentityAuthentication18SGC();
+				if (nRtn)
+				{
+					strError = _T("error:0502") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 502;
+				}
+			}
+			break;
 			}
 			CString strDataArea;
 			strDataArea = m_strDataItem + m_strOperaCode + m_strEndata1 + m_strRand1 + m_strDiv;
@@ -1576,6 +1949,16 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				}
 			}
 			break;
+			case 5:
+			{
+				int nRtn = ParameterUpdate18SGC(strFTargetData);
+				if (nRtn)
+				{
+					strError = _T("error:0505") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 505;
+				}
+			}
+			break;
 			}
 			CString strCiphertext, strMAC;
 			strCiphertext = strFTargetData.Left(strFTargetData.GetLength() - 8);
@@ -1633,6 +2016,16 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				{
 					strError = _T("error:0409") + CString(tcSplitError) + ErrorInfo15CSG(nRtn);
 					return 409;
+				}
+			}
+			break;
+			case 5:
+			{
+				int nRtn = InitPurse18SGC(strFTargetData);
+				if (nRtn)
+				{
+					strError = _T("error:0509") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 509;
 				}
 			}
 			break;
@@ -1801,14 +2194,37 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				}
 			}
 			break;
+			case 5:
+			{
+				int nRtn = ESAMIdentityAuthentication18SGC(strFEndata2);
+				if (nRtn)
+				{
+					strError = _T("error:0504") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 504;
+				}
+			}
+			break;
 			}
 			CString strDataArea;
-			strDataArea = m_strDataItem + m_strOperaCode + strFEndata2;
-			m_strLength.Format(_T("%02X"), strDataArea.GetLength() / 2);
-			strFLength = m_strLength;
-			strFOperatorCode = ReverseCStringBy2Plus33(m_strOperaCode);
-			strFEndata2 = ReverseCStringBy2Plus33(strFEndata2);
-			strData = str68 + strFMeterAddr + str68 + strFCtrlCode + strFLength + strFDataItem + strFOperatorCode + strFEndata2;
+			if (m_nDllType == 5)//ESAM外部认证
+			{		
+				strDataArea = m_strDataItem + m_strOperaCode + strFEndata2+ m_strDiv;
+				m_strLength.Format(_T("%02X"), strDataArea.GetLength() / 2);
+				strFLength = m_strLength;
+				strFOperatorCode = ReverseCStringBy2Plus33(m_strOperaCode);
+				strFEndata2 = ReverseCStringBy2Plus33(strFEndata2);
+				strFDiv = ReverseCStringBy2Plus33(m_strDiv);
+				strData = str68 + strFMeterAddr + str68 + strFCtrlCode + strFLength + strFDataItem + strFOperatorCode + strFEndata2+ strFDiv;
+			}
+			else//红外认证
+			{
+				strDataArea = m_strDataItem + m_strOperaCode + strFEndata2;
+				m_strLength.Format(_T("%02X"), strDataArea.GetLength() / 2);
+				strFLength = m_strLength;
+				strFOperatorCode = ReverseCStringBy2Plus33(m_strOperaCode);
+				strFEndata2 = ReverseCStringBy2Plus33(strFEndata2);
+				strData = str68 + strFMeterAddr + str68 + strFCtrlCode + strFLength + strFDataItem + strFOperatorCode + strFEndata2;
+			}
 		}
 		else
 		{
@@ -1855,6 +2271,8 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 					m_strApdu = _T("04D69300");
 					break;
 				}
+				if (m_nDllType == 5)
+					m_strApdu = _T("04D68400");
 			}
 			else
 			{
@@ -1921,6 +2339,16 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				{
 					strError = _T("error:0406") + CString(tcSplitError) + ErrorInfo15CSG(nRtn);
 					return 406;
+				}
+			}
+			break;
+			case 5:
+			{
+				int nRtn = ParameterElseUpdate18SGC(strFTargetData);
+				if (nRtn)
+				{
+					strError = _T("error:0506") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 506;
 				}
 			}
 			break;
@@ -2007,6 +2435,16 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				{
 					strError = _T("error:0405") + CString(tcSplitError) + ErrorInfo15CSG(nRtn);
 					return 405;
+				}
+			}
+			break;
+			case 5:
+			{
+				int nRtn = ParameterUpdate18SGC(strFTargetData);
+				if (nRtn)
+				{
+					strError = _T("error:0505") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 505;
 				}
 			}
 			break;
@@ -2236,6 +2674,16 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 				}
 			}
 			break;
+			case 5:
+			{
+				int nRtn = UserControl18SGC(strFTargetData);
+				if (nRtn)
+				{
+					strError = _T("error:0507") + CString(tcSplitError) + ErrorInfo18SGC(nRtn);
+					return 507;
+				}
+			}
+			break;
 			}
 			strFTargetData = ReverseCStringBy2Plus33(strFTargetData);
 			strDataArea = strFGrade + strFPsWd + strFOperatorCode + strFTargetData;
@@ -2429,7 +2877,7 @@ bool ZDLT645_2007::DataDecode(CString strData, CString & strValue)
 		}
 		else if (strDataItem == _T("070003FF"))
 		{
-			strValue = CString(tcSplitValue) + strDataItem + CString(tcSplitChar) + _T("红外认证成功") + strExt;
+			strValue = CString(tcSplitValue) + strDataItem + CString(tcSplitChar) + _T("红外认证/ESAM外部认证成功") + strExt;
 		}
 		else
 		{

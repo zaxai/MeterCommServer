@@ -14,13 +14,57 @@ ZSocket::ZSocket(void)
 	m_sz_dwTimeout[TIMEOUT_SEND]=-1;
 	m_sz_dwTimeout[TIMEOUT_RECV]=-1;
 	m_hEvtExitComm=CreateEvent(NULL,TRUE,TRUE,NULL);
+	InitSocket();
+}
+
+
+ZSocket::ZSocket(ZSocket && zsock)
+	: m_sock(zsock.m_sock)
+	, m_hEvtExitComm(zsock.m_hEvtExitComm)
+	, m_bIsStopCont(zsock.m_bIsStopCont)
+	, m_bIsStopAccept(zsock.m_bIsStopAccept)
+	, m_bIsStopSend(zsock.m_bIsStopSend)
+	, m_bIsStopRecv(zsock.m_bIsStopRecv)
+{
+	for (int i = 0; i < MAX_TIMEOUT; ++i)
+		m_sz_dwTimeout[i] = zsock.m_sz_dwTimeout[i];
+	zsock.m_sock = INVALID_SOCKET;
+	zsock.m_hEvtExitComm = NULL;
+}
+
+
+ZSocket & ZSocket::operator=(ZSocket && zsock)
+{
+	CloseSocket();
+	if (m_hEvtExitComm != NULL)
+	{
+		CloseHandle(m_hEvtExitComm);
+		m_hEvtExitComm = NULL;
+	}
+	m_sock = zsock.m_sock;
+	m_hEvtExitComm = zsock.m_hEvtExitComm;
+	m_bIsStopCont = zsock.m_bIsStopCont;
+	m_bIsStopAccept = zsock.m_bIsStopAccept;
+	m_bIsStopSend = zsock.m_bIsStopSend;
+	m_bIsStopRecv = zsock.m_bIsStopRecv;
+	for (int i = 0; i < MAX_TIMEOUT; ++i)
+		m_sz_dwTimeout[i] = zsock.m_sz_dwTimeout[i];
+	zsock.m_sock = INVALID_SOCKET;
+	zsock.m_hEvtExitComm = NULL;
+	return *this;
 }
 
 
 ZSocket::~ZSocket(void)
 {
-	
+	CloseSocket();
+	if (m_hEvtExitComm != NULL)
+	{
+		CloseHandle(m_hEvtExitComm);
+		m_hEvtExitComm = NULL;
+	}
 }
+
 
 int ZSocket::CallSocketDll(void)
 {
@@ -39,6 +83,7 @@ int ZSocket::CallSocketDll(void)
 	return ERROR_OK;
 }
 
+
 int ZSocket::UncallSocketDll(void)
 {
 	if(WSACleanup()!=0)
@@ -46,24 +91,24 @@ int ZSocket::UncallSocketDll(void)
 	return ERROR_OK;
 }
 
+
 int ZSocket::InitSocket(void)
 {
-	m_sock =socket(AF_INET,SOCK_STREAM,0); 
-	if(m_sock==INVALID_SOCKET)
-		return ERROR_INVALIDSOCK;
-	DWORD dwMode=1;
-	if(ioctlsocket(m_sock,FIONBIO,&dwMode)!=0)// 设为非阻塞模式
-		return ERROR_INITSOCK;
+	if (m_sock == INVALID_SOCKET)
+	{
+		m_sock = socket(AF_INET, SOCK_STREAM, 0);
+		if (m_sock == INVALID_SOCKET)
+			return ERROR_INVALIDSOCK;
+		DWORD dwMode = 1;
+		if (ioctlsocket(m_sock, FIONBIO, &dwMode) != 0)// 设为非阻塞模式
+			return ERROR_INITSOCK;
+	}
 	return ERROR_OK;
 }
 
+
 int ZSocket::CloseSocket(void)
 {
-	if(m_hEvtExitComm!=NULL)
-	{
-		CloseHandle(m_hEvtExitComm);
-		m_hEvtExitComm=NULL;
-	}
 	if(m_sock!=INVALID_SOCKET)
 	{
 		if(closesocket(m_sock)!=0)
@@ -72,6 +117,7 @@ int ZSocket::CloseSocket(void)
 	}
 	return ERROR_OK;
 }
+
 
 int ZSocket::Connect(const char * in_p_cServerIp,const unsigned short & in_nServerPort)
 {
@@ -132,6 +178,7 @@ end:
 	return nRtn;
 }
 
+
 int ZSocket::Connect(const CString & in_strServerIp,const CString & in_strServerPort)
 {
 	CString strServerIp;
@@ -143,6 +190,7 @@ int ZSocket::Connect(const CString & in_strServerIp,const CString & in_strServer
 	unsigned short nServerPort=_ttoi(in_strServerPort);
 	return Connect(sz_cServerIp,nServerPort);
 }
+
 
 int ZSocket::Bind(const char * in_p_cLocalIp,const unsigned short & in_nLocalPort)
 {
@@ -162,6 +210,7 @@ int ZSocket::Bind(const char * in_p_cLocalIp,const unsigned short & in_nLocalPor
 	return ERROR_OK;
 }
 
+
 int ZSocket::Bind(const CString & in_strLocalIp,const CString & in_strLocalPort)
 {
 	CString strLocalIp(in_strLocalIp);
@@ -174,6 +223,7 @@ int ZSocket::Bind(const CString & in_strLocalIp,const CString & in_strLocalPort)
 	return Bind(sz_cLocalIp,nLocalPort);
 }
 
+
 int ZSocket::Listen(const int & in_nBackLog)
 {
 	if(m_sock==INVALID_SOCKET)
@@ -183,6 +233,7 @@ int ZSocket::Listen(const int & in_nBackLog)
 		return ERROR_LISTEN;
 	return ERROR_OK;
 }
+
 
 int ZSocket::Accept(ZSocket & out_sockClient,CString * out_p_strClientIP)
 {
@@ -243,6 +294,7 @@ end:
 	return nRtn;
 }
 
+
 int ZSocket::Send(const char * in_p_cData,const int & in_nSendLen,int & out_nActSendLen)
 {
 	if(m_sock==INVALID_SOCKET)
@@ -252,6 +304,7 @@ int ZSocket::Send(const char * in_p_cData,const int & in_nSendLen,int & out_nAct
 		return ERROR_SEND;
 	return ERROR_OK;
 }
+
 
 int ZSocket::Send(const char * in_p_cData,const int & in_nSendLen)
 {
@@ -310,6 +363,7 @@ end:
 	return nRtn;
 }
 
+
 int ZSocket::Send(const CString & in_strData)
 {
 	int nStrLen=in_strData.GetLength();
@@ -334,6 +388,7 @@ int ZSocket::Send(const CString & in_strData)
 	return nRtn;
 }
 
+
 int ZSocket::Recv(char * out_p_cData,const int & in_nMaxRecvLen,int & out_nActRecvLen)
 {
 	if(m_sock==INVALID_SOCKET)
@@ -345,6 +400,7 @@ int ZSocket::Recv(char * out_p_cData,const int & in_nMaxRecvLen,int & out_nActRe
 		return ERROR_OTHER;
 	return ERROR_OK;
 }
+
 
 int ZSocket::Recv(char * out_p_cData,const int & in_nRecvLen)
 {
@@ -407,6 +463,7 @@ end:
 	SetEvent(m_hEvtExitComm);
 	return nRtn;
 }
+
 
 int ZSocket::Recv(CString & out_strData,const int & in_nMaxRecvLen,const bool & in_bIsBlocking)
 {
@@ -480,6 +537,7 @@ end:
 	SetEvent(m_hEvtExitComm);
 	return nRtn;
 }
+
 
 int ZSocket::Recv(CString & out_strData, const bool & in_bIsBlocking)
 {
@@ -560,17 +618,6 @@ end:
 	return nRtn;
 }
 
-BOOL ZSocket::ExecReq(const CString & in_strReq,CString & out_strRslt,const int & in_nMaxRecvLen)
-{
-	int nRtn= ERROR_OK;
-	nRtn=Send(in_strReq);
-	if(nRtn)
-		return FALSE;
-	nRtn=Recv(out_strRslt,in_nMaxRecvLen);
-	if(nRtn)
-		return FALSE;
-	return TRUE;
-}
 
 void ZSocket::StopComm(void)
 {
@@ -581,13 +628,15 @@ void ZSocket::StopComm(void)
 	WaitForSingleObject(m_hEvtExitComm,INFINITE);
 }
 
-BOOL ZSocket::SetTimeOut(const BYTE & in_cTimeoutIndex,const DWORD & in_dwTimeOut)
+
+bool ZSocket::SetTimeOut(const BYTE & in_cTimeoutIndex,const DWORD & in_dwTimeOut)
 {
 	if(in_cTimeoutIndex>=MAX_TIMEOUT)
-		return FALSE;
+		return false;
 	m_sz_dwTimeout[in_cTimeoutIndex]=in_dwTimeOut;
-	return TRUE;
+	return true;
 }
+
 
 CString ZSocket::DomainNameToIp(const CString & strDomainName)
 {

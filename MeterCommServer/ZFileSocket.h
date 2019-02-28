@@ -1,6 +1,6 @@
 /*
-** Version  1.0.0.1
-** Date     2018.12.01
+** Version  1.0.0.2
+** Date     2019.02.27
 ** Author   zax
 ** Copyright (C) Since 2009 Zaxai.Com
 */
@@ -14,17 +14,25 @@ private:
 	ULONGLONG m_llFileLength;
 	ULONGLONG m_llTotalTimes;
 	ULONGLONG m_llCurTimes;
+	int m_nBuf;
+	char * m_p_cSendData;
+	char * m_p_cRecvData;
+	bool InitByBuf();
 public:
 	ZFileSocket(void);
-	~ZFileSocket(void);
+	ZFileSocket(ZFileSocket && zfilesock);
+	ZFileSocket & operator=(ZFileSocket && zfilesock);
+	virtual ~ZFileSocket(void);
 	int FileSend(void);
 	int FileRecv(void);
+	CString GetFilePath(void);
 	void SetFilePath(const CString & in_strFilePath);
-	void SetFileLength(const ULONGLONG & in_llFileLength);
-	int GetBuf(void);
-	void SetCurTimes(ULONGLONG llCurTimes);
-	ULONGLONG GetCurTimes(void);
-	ULONGLONG GetTotalTimes(void);
 	ULONGLONG GetFileLength(void);
+	void SetFileLength(const ULONGLONG & in_llFileLength);
+	ULONGLONG GetTotalTimes(void);
+	ULONGLONG GetCurTimes(void);
+	void SetCurTimes(ULONGLONG llCurTimes);
+	int GetBuf(void);
+	bool SetBuf(int nBuf);
 };
 

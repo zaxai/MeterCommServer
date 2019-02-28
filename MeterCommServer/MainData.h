@@ -5,8 +5,8 @@
 class CMainData
 {
 public:
-	CMainData(void);
-	CMainData(const ZFileSocket & sock,const CString & strIP,CWnd * pWnd);
+	CMainData(ZFileSocket & sock,const CString & strIP,CWnd * pWnd);
+	CMainData(CMainData && md);
 	~CMainData(void);
 	ZFileSocket m_sockClient;
 	CString m_strClientIP;

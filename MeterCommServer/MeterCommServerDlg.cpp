@@ -72,9 +72,6 @@ CMeterCommServerDlg::CMeterCommServerDlg(CWnd* pParent /*=NULL*/)
 	, m_strUpdateFlag(_T("1"))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	ZSocket::CallSocketDll();
-	ZDLT645_2007::CallExDll();
-	ZDLT698_45::CallExDll();
 }
 
 CMeterCommServerDlg::~CMeterCommServerDlg()
@@ -89,9 +86,6 @@ CMeterCommServerDlg::~CMeterCommServerDlg()
 		CloseHandle(m_hMutex);
 		m_hMutex=NULL;
 	}
-	ZDLT698_45::UncallExDll();
-	ZDLT645_2007::UncallExDll();
-	ZSocket::UncallSocketDll();
 }
 
 void CMeterCommServerDlg::DoDataExchange(CDataExchange* pDX)
@@ -219,7 +213,7 @@ void CMeterCommServerDlg::OnBnClickedButtonStartserver()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	m_bIsListen=true;
-	m_sockServer.InitSocket();  
+	m_sockServer.InitSocket();
 	m_sockServer.Bind(m_strServerIP,m_strServerPort);  
 	m_sockServer.Listen(5);  
 	while(AfxBeginThread(ListenThreadFunc,(LPVOID)this)==NULL);
@@ -315,7 +309,7 @@ afx_msg LRESULT CMeterCommServerDlg::OnMsgrecvpro(WPARAM wParam, LPARAM lParam)
 			p_md->m_sockClient.SetTimeOut(ZSocket::TIMEOUT_RECV,_ttoi(m_strServerTimeOut));
 			p_md->m_dlt645.SetNetCptInfo(m_strNetCptIP,m_strNetCptPort,m_strNetCptTimeOut);
 			p_md->m_dlt698.SetNetCptInfo(m_strNetCptIP, m_strNetCptPort, m_strNetCptTimeOut);
-			m_list_md.push_back(*p_md);
+			m_list_md.push_back(std::move(*p_md));
 			while(AfxBeginThread(ExecReqThreadFunc,(LPVOID)(&(m_list_md.back())))==NULL);
 			++m_nTotalReq;
 			CString str;
@@ -636,9 +630,7 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 				strHead.Format(_T("[%06d12]"), strSendDataTemp.GetLength() + 10);
 				strSendDataTemp = strHead + strSendDataTemp;
 				ZStringSocket zSock;
-				int nRtn = zSock.InitSocket();
-				if (nRtn)
-					goto end14;
+				int nRtn = ZSocket::ERROR_OK;
 				zSock.SetTimeOut(ZSocket::TIMEOUT_CONT, _ttoi(pMainDlg->m_strServerTimeOut));
 				zSock.SetTimeOut(ZSocket::TIMEOUT_SEND, _ttoi(pMainDlg->m_strServerTimeOut));
 				zSock.SetTimeOut(ZSocket::TIMEOUT_RECV, _ttoi(pMainDlg->m_strServerTimeOut));
@@ -650,7 +642,6 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 					goto end14;
 				nRtn = zSock.StringRecv(strRecvDataTemp);
 			end14:
-				zSock.CloseSocket();
 				if (!nRtn)
 				{
 					if (strRecvDataTemp.Mid(0, 1) == _T("[") && strRecvDataTemp.Mid(9, 1) == _T("]") && _ttoi(strRecvDataTemp.Mid(1, 6)) == strRecvDataTemp.GetLength())
@@ -670,9 +661,7 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 				strHead.Format(_T("[%06d13]"), strSendDataTemp.GetLength() + 10);
 				strSendDataTemp = strHead + strSendDataTemp;
 				ZStringSocket zSock;
-				int nRtn = zSock.InitSocket();
-				if (nRtn)
-					goto end15;
+				int nRtn = ZSocket::ERROR_OK;
 				zSock.SetTimeOut(ZSocket::TIMEOUT_CONT, _ttoi(pMainDlg->m_strServerTimeOut));
 				zSock.SetTimeOut(ZSocket::TIMEOUT_SEND, _ttoi(pMainDlg->m_strServerTimeOut));
 				zSock.SetTimeOut(ZSocket::TIMEOUT_RECV, _ttoi(pMainDlg->m_strServerTimeOut));
@@ -685,7 +674,6 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 				int nMaxRecvLen = 10240;
 				nRtn = zSock.StringRecv(strRecvDataTemp);
 			end15:
-				zSock.CloseSocket();
 				if (!nRtn)
 				{
 					if (strRecvDataTemp.Mid(0, 1) == _T("[") && strRecvDataTemp.Mid(9, 1) == _T("]") && _ttoi(strRecvDataTemp.Mid(1, 6)) == strRecvDataTemp.GetLength())
@@ -705,7 +693,6 @@ UINT CMeterCommServerDlg::ExecReqThreadFunc(LPVOID lpParam)
 			strEditShow += strTime + _T(" ") + strSendData + _T("\r\n");
 		}
 	}
-	p_md->m_sockClient.CloseSocket();
 	SendMessageTimeout(pMainDlg->m_hWnd, WM_MSGRECVPRO, (WPARAM)&strEditShow, MSGUSER_UPDATEEDIT, SMTO_BLOCK, 500, NULL);
 	SendMessageTimeout(pMainDlg->m_hWnd, WM_MSGRECVPRO, (WPARAM)p_md, MSGUSER_DELETEMAINDATA, SMTO_BLOCK, 500, NULL);
 	return 0;
@@ -717,7 +704,6 @@ void CMeterCommServerDlg::OnBnClickedOk()
 	Shell_NotifyIcon(NIM_DELETE, &m_nid);
 	m_bIsListen=false;
 	m_sockServer.StopComm();
-	m_sockServer.CloseSocket();
 	WaitForSingleObject(m_hEvtExit,INFINITE);
 	while(m_list_md.size())
 		Sleep(100);
@@ -736,7 +722,6 @@ void CMeterCommServerDlg::OnClose()
 	Shell_NotifyIcon(NIM_DELETE, &m_nid);
 	m_bIsListen=false;
 	m_sockServer.StopComm();
-	m_sockServer.CloseSocket();
 	WaitForSingleObject(m_hEvtExit,INFINITE);
 	while(m_list_md.size())
 		Sleep(100);

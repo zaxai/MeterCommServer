@@ -1606,34 +1606,19 @@ int ZDLT645_2007::GetEncodeRemoteData(CString & strData,CString & strError)
 bool ZDLT645_2007::SocketCommunication(const CString & strDataIn,CString & strDataOut)
 {
 	ZStringSocket zSock;
-	int nRtn=zSock.InitSocket();
-	if(nRtn)
-	{
-		zSock.CloseSocket();
-		return false;
-	}
+	int nRtn = ZSocket::ERROR_OK;
 	zSock.SetTimeOut(ZSocket::TIMEOUT_CONT,_ttoi(m_strServerTimeOut));
 	zSock.SetTimeOut(ZSocket::TIMEOUT_SEND,_ttoi(m_strServerTimeOut));
 	zSock.SetTimeOut(ZSocket::TIMEOUT_RECV,_ttoi(m_strServerTimeOut));
 	nRtn=zSock.Connect(m_strServerIP,m_strServerPort);
 	if(nRtn)
-	{
-		zSock.CloseSocket();
 		return false;
-	}
 	nRtn=zSock.StringSend(strDataIn);
 	if(nRtn)
-	{
-		zSock.CloseSocket();
 		return false;
-	}
 	nRtn=zSock.StringRecv(strDataOut);
 	if(nRtn)
-	{
-		zSock.CloseSocket();
 		return false;
-	}
-	zSock.CloseSocket();
 	return true;
 }
 

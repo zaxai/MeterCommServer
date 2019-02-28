@@ -1,6 +1,6 @@
 /*
-** Version  1.0.0.1
-** Date     2018.12.01
+** Version  1.0.0.2
+** Date     2019.02.27
 ** Author   zax
 ** Copyright (C) Since 2009 Zaxai.Com
 */
@@ -49,9 +49,13 @@ private:
 	bool m_bIsStopSend;
 	bool m_bIsStopRecv;
 	DWORD m_sz_dwTimeout[MAX_TIMEOUT];
+	ZSocket(const ZSocket & zsock) = delete;
+	ZSocket operator=(const ZSocket & zsock) = delete;
 public:
 	ZSocket(void);
-	~ZSocket(void);
+	ZSocket(ZSocket && zsock);
+	ZSocket & operator=(ZSocket && zsock);
+	virtual ~ZSocket(void);
 	static int CallSocketDll(void);
 	static int UncallSocketDll(void);
 	int InitSocket(void);
@@ -69,9 +73,8 @@ public:
 	int Recv(char * out_p_cData,const int & in_nRecvLen);
 	int Recv(CString & out_strData,const int & in_nMaxRecvLen,const bool & in_bIsBlocking=true);
 	int Recv(CString & out_strData, const bool & in_bIsBlocking = true);
-	BOOL ExecReq(const CString & in_strReq,CString & out_strRslt,const int & in_nMaxRecvLen);
 	void StopComm(void);
-	BOOL SetTimeOut(const BYTE & in_cTimeoutIndex,const DWORD & in_dwTimeOut);
+	bool SetTimeOut(const BYTE & in_cTimeoutIndex,const DWORD & in_dwTimeOut);
 	CString DomainNameToIp(const CString & strDomainName);
 	bool IsStrIP(const CString & str);
 };

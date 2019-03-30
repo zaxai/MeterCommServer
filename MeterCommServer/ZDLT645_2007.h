@@ -85,7 +85,7 @@ public:
 	int ParameterUpdate09SGCC(CString & strData);
 	int ParameterUpdate109SGCC(CString & strData);
 	int ParameterUpdate209SGCC(CString & strData);
-	void GetN1NmData(CString & strData);
+	void GetN1NmData(CString & strData, int nDllType);
 	int DataClear115CSG(CString & strData);
 	int DataClear113SPG(CString & strData);
 	int DataClear113SGCC(CString & strData);

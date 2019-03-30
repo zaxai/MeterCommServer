@@ -1051,7 +1051,7 @@ int ZDLT645_2007::ParameterUpdate209SGCC(CString & strData)
 	return nRtn;
 }
 
-void ZDLT645_2007::GetN1NmData(CString & strData)
+void ZDLT645_2007::GetN1NmData(CString & strData, int nDllType)
 {
 	CString strTime,strTimeR,strTemp,strRtn;
 	int nYear;
@@ -1081,7 +1081,10 @@ void ZDLT645_2007::GetN1NmData(CString & strData)
 		}
 		if(m_strGrade==_T("98")||m_strGrade==_T("96"))
 		{
-			strData+=strTime;
+			if(nDllType==5)
+				strData += strTimeR;
+			else
+				strData+=strTime;
 		}
 	}
 }
@@ -2482,7 +2485,7 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 		}
 		else if (m_strGrade == _T("98") || m_strGrade == _T("96"))
 		{
-			GetN1NmData(strFTargetData);
+			GetN1NmData(strFTargetData,m_nDllType);
 			switch (m_nDllType)
 			{
 			case 1:
@@ -2548,7 +2551,7 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 		}
 		else if (m_strGrade == _T("98") || m_strGrade == _T("96"))
 		{
-			GetN1NmData(strFTargetData);
+			GetN1NmData(strFTargetData, m_nDllType);
 			strFTargetData += m_strTgtData;
 			switch (m_nDllType)
 			{
@@ -2606,7 +2609,7 @@ int ZDLT645_2007::DataEncode(CString & strData, CString & strError)
 		strFPsWd = ReverseCStringBy2Plus33(m_strPsWd);
 		strFOperatorCode = ReverseCStringBy2Plus33(m_strOperaCode);
 		strFTargetData = m_strTgtData;
-		GetN1NmData(strFTargetData);
+		GetN1NmData(strFTargetData, m_nDllType);
 		if (m_strGrade == _T("02") || m_strGrade == _T("04") || m_strGrade == _T("03") || m_strGrade == _T("00") || m_strGrade == _T("11"))
 		{
 			strFTargetData = CStringBy2Plus33(strFTargetData);

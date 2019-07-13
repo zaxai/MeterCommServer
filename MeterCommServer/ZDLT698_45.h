@@ -69,10 +69,10 @@ public:
 	static CString GetPPPFCS16(const CString & str);
 	static UINT16 GetPPPFCS16(BYTE * p_c,int nLen);
 	static bool CStringToBYTEArrBy2(const CString & in_str,BYTE *out_pArray,const int & in_nMaxArrayLen);
-	void ExecGetResultNormal(CString & strScr, CString & strValue);
-	void ExecData(CString & strScr, CString & strValue);
-	void ExecSetResultNormal(CString & strScr, CString & strValue);
-	void ExecActionResultNormal(CString & strScr, CString & strValue);
+	void ExecGetResultNormal(CString & strSrc, CString & strValue);
+	void ExecData(CString & strSrc, CString & strValue);
+	void ExecSetResultNormal(CString & strSrc, CString & strValue);
+	void ExecActionResultNormal(CString & strSrc, CString & strValue);
 	CString HexStringToAsciiString(const CString & strHex);
 	CString HexStringToUTF8String(const CString & strHex);
 	float HexString2Float(const CString & strSrc);
